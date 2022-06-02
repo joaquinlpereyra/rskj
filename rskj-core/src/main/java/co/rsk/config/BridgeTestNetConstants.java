@@ -42,9 +42,9 @@ public class BridgeTestNetConstants extends BridgeConstants {
         BtcECKey federator0PublicKey = BtcECKey.fromPublicOnly(Hex.decode("020dfaa261fb7ea99f29b2f25cec9c49b6fe47daca5138b4f5443ba261547817f6")); // generator = hop-public-key-1
         BtcECKey federator1PublicKey = BtcECKey.fromPublicOnly(Hex.decode("0303d2e83183329a7fd3020b93d5d58e9ec74ecc6f49cf84b1886045b6436729ad")); // generator = hop-public-key-2
         BtcECKey federator2PublicKey = BtcECKey.fromPublicOnly(Hex.decode("039798305ba4f07bb65ee01cf3be29dc25bdfa4e3e39b04af95a02fb0a68a47a29")); // generator = hop-public-key-3
-        BtcECKey federator3PublicKey = BtcECKey.fromPublicOnly(Hex.decode("02f29ce76c569fdac0cc9d6f67dc1fbdb835271ee5e1e066d0e90cded48e59e9f4")); // generator = hop-public-key-4
+//        BtcECKey federator3PublicKey = BtcECKey.fromPublicOnly(Hex.decode("02f29ce76c569fdac0cc9d6f67dc1fbdb835271ee5e1e066d0e90cded48e59e9f4")); // generator = hop-public-key-4
 
-        List<BtcECKey> genesisFederationPublicKeys = Arrays.asList(federator0PublicKey, federator1PublicKey, federator2PublicKey, federator3PublicKey);
+        List<BtcECKey> genesisFederationPublicKeys = Arrays.asList(federator0PublicKey, federator1PublicKey, federator2PublicKey);
 
         // IMPORTANT: BTC, RSK and MST keys are the same.
         // Change upon implementation of the <INSERT FORK NAME HERE> fork.
