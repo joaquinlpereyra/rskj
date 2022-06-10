@@ -74,7 +74,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
     @Override
     public void init() {
         resetDbLock.writeLock().lock();
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.LEVEL_DB_INIT);
+        Metric metric = profiler.start(Profiler.MetricType.LEVEL_DB_INIT);
         try {
             logger.debug("~> LevelDbDataSource.init(): {}", name);
 
@@ -111,7 +111,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
             }
             logger.debug("<~ LevelDbDataSource.init(): {}", name);
         } finally {
-            profiler.stop(metric);
+            metric.close();
             resetDbLock.writeLock().unlock();
         }
     }
@@ -142,7 +142,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
     @Override
     public byte[] get(byte[] key) {
         Objects.requireNonNull(key);
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.DB_READ);
+        Metric metric = profiler.start(Profiler.MetricType.DB_READ);
         resetDbLock.readLock().lock();
         try {
             if (logger.isTraceEnabled()) {
@@ -173,7 +173,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
             }
         } finally {
             resetDbLock.readLock().unlock();
-            profiler.stop(metric);
+            metric.close();
         }
     }
 
@@ -182,7 +182,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
 
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.DB_WRITE);
+        Metric metric = profiler.start(Profiler.MetricType.DB_WRITE);
         resetDbLock.readLock().lock();
         try {
             if (logger.isTraceEnabled()) {
@@ -197,13 +197,13 @@ public class LevelDbDataSource implements KeyValueDataSource {
             return value;
         } finally {
             resetDbLock.readLock().unlock();
-            profiler.stop(metric);
+            metric.close();
         }
     }
 
     @Override
     public void delete(byte[] key) {
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.DB_WRITE);
+        Metric metric = profiler.start(Profiler.MetricType.DB_WRITE);
         resetDbLock.readLock().lock();
         try {
             if (logger.isTraceEnabled()) {
@@ -217,13 +217,13 @@ public class LevelDbDataSource implements KeyValueDataSource {
 
         } finally {
             resetDbLock.readLock().unlock();
-            profiler.stop(metric);
+            metric.close();
         }
     }
 
     @Override
     public Set<ByteArrayWrapper> keys() {
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.DB_READ);
+        Metric metric = profiler.start(Profiler.MetricType.DB_READ);
         resetDbLock.readLock().lock();
         try {
             if (logger.isTraceEnabled()) {
@@ -248,14 +248,14 @@ public class LevelDbDataSource implements KeyValueDataSource {
             }
         } finally {
             resetDbLock.readLock().unlock();
-            profiler.stop(metric);
+            metric.close();
         }
     }
 
     private void updateBatchInternal(Map<ByteArrayWrapper, byte[]> rows, Set<ByteArrayWrapper> deleteKeys) throws IOException {
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.DB_WRITE);
+        Metric metric = profiler.start(Profiler.MetricType.DB_WRITE);
         if (rows.containsKey(null) || rows.containsValue(null)) {
-            profiler.stop(metric);
+            metric.close();
             throw new IllegalArgumentException("Cannot update null values");
         }
         // Note that this is not atomic.
@@ -267,7 +267,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
                 batch.delete(deleteKey.getData());
             }
             db.write(batch);
-            profiler.stop(metric);
+            metric.close();
         }
 
     }
@@ -313,7 +313,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
 
     @Override
     public void close() {
-        Metric metric = profiler.start(Profiler.PROFILING_TYPE.LEVEL_DB_CLOSE);
+        Metric metric = profiler.start(Profiler.MetricType.LEVEL_DB_CLOSE);
         resetDbLock.writeLock().lock();
         try {
             if (!isAlive()) {
@@ -331,7 +331,7 @@ public class LevelDbDataSource implements KeyValueDataSource {
             }
         } finally {
             resetDbLock.writeLock().unlock();
-            profiler.stop(metric);
+            metric.close();
         }
     }
 
