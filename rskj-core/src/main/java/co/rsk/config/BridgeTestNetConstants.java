@@ -64,7 +64,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
         btc2RskMinimumAcceptableConfirmationsOnRsk = 5;
         rsk2BtcMinimumAcceptableConfirmations = 10;
 
-        updateBridgeExecutionPeriod = 3 * 60 * 1000; // 3 minutes
+        updateBridgeExecutionPeriod = 1 * 60 * 1000; // 1 minutes
 
         maxBtcHeadersPerRskBlock = 500;
 
