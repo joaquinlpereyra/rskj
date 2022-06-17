@@ -142,6 +142,10 @@ public class RskSystemProperties extends SystemProperties {
         return configFromFiles.getLong("miner.server.workSubmissionRateLimitInMills");
     }
 
+    public boolean updateWorkOnNewTransaction() {
+        return getBoolean("miner.server.updateWorkOnNewTransaction", false);
+    }
+    
     public long minerMinGasPrice() {
         return configFromFiles.getLong("miner.minGasPrice");
     }
