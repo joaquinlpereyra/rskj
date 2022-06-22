@@ -20,8 +20,24 @@ package co.rsk.rpc.netty.rest.modules;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 
-public interface RestModule {
+public abstract class RestModule {
 
-    DefaultFullHttpResponse processRequest(String uri, HttpMethod request);
+    protected String uri;
+    protected boolean active;
+
+    protected RestModule(String uri, boolean active) {
+        this.uri = uri;
+        this.active = active;
+    }
+
+    public final String getUri() {
+        return uri;
+    }
+
+    public final boolean isActive() {
+        return active;
+    }
+
+    public abstract DefaultFullHttpResponse processRequest(String uri, HttpMethod request);
 
 }

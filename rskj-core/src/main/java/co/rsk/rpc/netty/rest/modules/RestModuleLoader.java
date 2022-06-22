@@ -17,23 +17,28 @@
  */
 package co.rsk.rpc.netty.rest.modules;
 
-import co.rsk.rpc.netty.rest.RestUtils;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
+import co.rsk.rpc.netty.rest.dto.RestModuleConfigDTO;
 
-public class HealthCheckModule extends RestModule {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
-    public HealthCheckModule(String uri, boolean active) {
-        super(uri, active);
+public class RestModuleLoader {
+
+    private final List<RestModule> restModuleList;
+
+    public RestModuleLoader(RestModuleConfigDTO restModuleConfigDTO) {
+        Objects.requireNonNull(restModuleConfigDTO, "REST Module Config can not be null");
+
+        restModuleList = new ArrayList<>();
+
+        restModuleList.add(new HealthCheckModule("/health-check",
+                restModuleConfigDTO.isHealthCheckModuleEnabled()));
     }
 
-    @Override
-    public DefaultFullHttpResponse processRequest(String uri, HttpMethod method) {
-        if ("/health-check/ping".equals(uri) && method.equals(HttpMethod.GET)) {
-            return RestUtils.createResponse("pong");
-        }
-
-        return null;
+    public List<RestModule> getRestModules() {
+        return Collections.unmodifiableList(restModuleList);
     }
 
 }

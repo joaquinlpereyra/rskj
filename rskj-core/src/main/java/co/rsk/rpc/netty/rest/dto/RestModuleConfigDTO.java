@@ -19,7 +19,7 @@ package co.rsk.rpc.netty.rest.dto;
 
 public class RestModuleConfigDTO {
 
-    private boolean healthCheckModuleEnabled;
+    private final boolean healthCheckModuleEnabled;
 
     public RestModuleConfigDTO(boolean healthCheckModuleEnabled) {
         this.healthCheckModuleEnabled = healthCheckModuleEnabled;

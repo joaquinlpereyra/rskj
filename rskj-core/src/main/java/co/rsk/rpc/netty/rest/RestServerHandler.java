@@ -18,6 +18,7 @@
 package co.rsk.rpc.netty.rest;
 
 import co.rsk.rpc.netty.rest.dto.RestModuleConfigDTO;
+import co.rsk.rpc.netty.rest.modules.RestModuleLoader;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
@@ -30,7 +31,8 @@ public class RestServerHandler extends SimpleChannelInboundHandler<HttpObject> {
     private final RestServerDispatcher dispatcher;
 
     public RestServerHandler(RestModuleConfigDTO restModuleConfigDTO) {
-        this.dispatcher = new RestServerDispatcher(restModuleConfigDTO);
+        RestModuleLoader restModuleLoader = new RestModuleLoader(restModuleConfigDTO);
+        this.dispatcher = new RestServerDispatcher(restModuleLoader.getRestModules());
     }
 
     @Override
