@@ -69,6 +69,7 @@ public class RestServer implements InternalService {
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
+            logger.info("REST Server Stopped");
         }
 
     }
@@ -77,6 +78,7 @@ public class RestServer implements InternalService {
     public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        logger.info("REST Server Stopped");
     }
 
 }
