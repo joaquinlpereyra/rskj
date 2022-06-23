@@ -2661,6 +2661,7 @@ public class BridgeSupport {
 
         Context.propagate(btcContext);
         Sha256Hash btcTxHash = BtcTransactionFormatUtils.calculateBtcTxHash(btcTxSerialized);
+        logger.debug("[registerFastBridgeBtcTransaction] btc tx hash {}", btcTxHash);
 
         Keccak256 fastBridgeDerivationHash = getFastBridgeDerivationHash(
             derivationArgumentsHash,
@@ -2668,6 +2669,7 @@ public class BridgeSupport {
             lpBtcAddress,
             lbcAddress
         );
+        logger.debug("[registerFastBridgeBtcTransaction] fast bridge derivation hash {}", fastBridgeDerivationHash);
 
         if (provider.isFastBridgeFederationDerivationHashUsed(btcTxHash, fastBridgeDerivationHash)) {
             logger.debug("[registerFastBridgeBtcTransaction] Transaction and derivation hash already used");
@@ -2698,6 +2700,7 @@ public class BridgeSupport {
             fbActiveFederationInformation.getFastBridgeFederationAddress(bridgeConstants.getBtcParams());
         Federation retiringFederation = getRetiringFederation();
         Optional<FastBridgeFederationInformation> fbRetiringFederationInformation = Optional.empty();
+        logger.debug("[registerFastBridgeBtcTransaction] flyover active federation address {}", fbActiveFederationAddress);
 
         List<Address> addresses = new ArrayList<>(2);
         addresses.add(fbActiveFederationAddress);
@@ -2710,7 +2713,10 @@ public class BridgeSupport {
                     bridgeConstants.getBtcParams()
                 );
             addresses.add(fbRetiringFederationAddress);
+            logger.debug("[registerFastBridgeBtcTransaction] flyover retiring federation address {}", fbRetiringFederationAddress);
         }
+        logger.debug("[registerFastBridgeBtcTransaction] addresses size {}", addresses.size());
+        addresses.forEach(a -> logger.debug("[registerFastBridgeBtcTransaction] address {}", a.toBase58()));
 
         FastBridgeTxResponseCodes txResponse = BridgeUtils.validateFastBridgePeginValue(
             activations,
@@ -2719,6 +2725,7 @@ public class BridgeSupport {
             btcTx,
             addresses
         );
+        logger.debug("[registerFastBridgeBtcTransaction] validate fast bridge pegin value response {}", txResponse.value());
 
         if (txResponse != FastBridgeTxResponseCodes.VALID_TX){
             return BigInteger.valueOf(txResponse.value());
@@ -2731,6 +2738,7 @@ public class BridgeSupport {
             btcTx,
             addresses
         );
+        logger.debug("[registerFastBridgeBtcTransaction] total amount {}", totalAmount);
 
         if (!verifyLockDoesNotSurpassLockingCap(btcTx, totalAmount)) {
             InternalTransaction internalTx = (InternalTransaction) rskTx;
@@ -2753,6 +2761,7 @@ public class BridgeSupport {
         }
 
         transferTo(lbcAddress, co.rsk.core.Coin.fromBitcoin(totalAmount));
+        logger.debug("[registerFastBridgeBtcTransaction] transferred {} to {}", co.rsk.core.Coin.fromBitcoin(totalAmount), lbcAddress);
 
         List<UTXO> utxosForFbActiveFed = BridgeUtils.getUTXOsSentToAddresses(
             activations,
@@ -2761,6 +2770,8 @@ public class BridgeSupport {
             btcTx,
             Collections.singletonList(fbActiveFederationAddress)
         );
+        logger.debug("[registerFastBridgeBtcTransaction] utxos for flyover active fed {}", utxosForFbActiveFed);
+        utxosForFbActiveFed.forEach(u -> logger.debug("[registerFastBridgeBtcTransaction] utxo amount {}", u.getValue()));
 
         saveFastBridgeActiveFederationDataInStorage(
             btcTxHashWithoutWitness,
@@ -2779,6 +2790,9 @@ public class BridgeSupport {
                     fbRetiringFederationInformation.get().getFastBridgeFederationAddress(bridgeConstants.getBtcParams())
                 )
             );
+
+            logger.debug("[registerFastBridgeBtcTransaction] utxos for flyover retiring fed {}", utxosForRetiringFed);
+            utxosForRetiringFed.forEach(u -> logger.debug("[registerFastBridgeBtcTransaction] utxo amount {}", u.getValue()));
 
             if (!utxosForRetiringFed.isEmpty()){
                 logger.info(
