@@ -15,29 +15,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.rsk.rpc.netty.rest.modules;
+package co.rsk.rest.modules;
 
+import co.rsk.rest.RestUtils;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 
-public abstract class RestModule {
+public class HealthCheckModule extends RestModule {
 
-    protected String uri;
-    protected boolean active;
-
-    protected RestModule(String uri, boolean active) {
-        this.uri = uri;
-        this.active = active;
+    public HealthCheckModule(String uri, boolean active) {
+        super(uri, active);
     }
 
-    public final String getUri() {
-        return uri;
-    }
+    @Override
+    public DefaultFullHttpResponse processRequest(String uri, HttpMethod method) {
+        if ("/health-check/ping".equals(uri) && method.equals(HttpMethod.GET)) {
+            return RestUtils.createResponse("pong");
+        }
 
-    public final boolean isActive() {
-        return active;
+        return null;
     }
-
-    public abstract DefaultFullHttpResponse processRequest(String uri, HttpMethod request);
 
 }

@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.rsk.rpc.netty.rest;
+package co.rsk.rest;
 
-import co.rsk.rpc.netty.rest.dto.RestModuleConfigDTO;
+import co.rsk.rest.dto.RestModuleConfigDTO;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;

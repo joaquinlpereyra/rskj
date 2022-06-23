@@ -15,18 +15,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.rsk.rpc.netty.rest.dto;
+package co.rsk.rest.modules;
 
-public class RestModuleConfigDTO {
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
 
-    private final boolean healthCheckModuleEnabled;
+public abstract class RestModule {
 
-    public RestModuleConfigDTO(boolean healthCheckModuleEnabled) {
-        this.healthCheckModuleEnabled = healthCheckModuleEnabled;
+    protected String uri;
+    protected boolean active;
+
+    protected RestModule(String uri, boolean active) {
+        this.uri = uri;
+        this.active = active;
     }
 
-    public boolean isHealthCheckModuleEnabled() {
-        return healthCheckModuleEnabled;
+    public final String getUri() {
+        return uri;
     }
+
+    public final boolean isActive() {
+        return active;
+    }
+
+    public abstract DefaultFullHttpResponse processRequest(String uri, HttpMethod request);
 
 }

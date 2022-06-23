@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.rsk.rpc.netty.rest;
+package co.rsk.rest;
 
 import co.rsk.config.InternalService;
-import co.rsk.rpc.netty.rest.dto.RestModuleConfigDTO;
+import co.rsk.rest.dto.RestModuleConfigDTO;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;

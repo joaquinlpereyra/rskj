@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.rsk.rpc.netty.rest.modules;
+package co.rsk.rest.modules;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -33,7 +33,7 @@ public class HealthCheckModuleTest {
 
     @Before
     public void setup() {
-        healthCheckModule = new HealthCheckModule();
+        healthCheckModule = new HealthCheckModule("url.path", true);
     }
 
     @Test

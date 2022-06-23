@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package co.rsk.rpc.netty.rest;
+package co.rsk.rest;
 
-import co.rsk.rpc.netty.rest.dto.RestModuleConfigDTO;
-import co.rsk.rpc.netty.rest.modules.RestModuleLoader;
+import co.rsk.rest.dto.RestModuleConfigDTO;
+import co.rsk.rest.modules.RestModuleLoader;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
