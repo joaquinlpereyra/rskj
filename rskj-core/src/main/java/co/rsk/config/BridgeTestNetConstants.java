@@ -98,7 +98,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
         federationActivationAge = 20L;
 
         fundsMigrationAgeSinceActivationBegin = 20L;
-        fundsMigrationAgeSinceActivationEnd = 3_650L;
+        fundsMigrationAgeSinceActivationEnd = 1_620L;
 
         List<ECKey> feePerKbAuthorizedKeys = Arrays.stream(new String[]{
                 "04701d1d27f8c2ae97912d96fb1f82f10c2395fd320e7a869049268c6b53d2060dfb2e22e3248955332d88cd2ae29a398f8f3858e48dd6d8ffbc37dfd6d1aa4934",
