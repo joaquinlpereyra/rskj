@@ -98,7 +98,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
         federationActivationAge = 20L;
 
         fundsMigrationAgeSinceActivationBegin = 20L;
-        fundsMigrationAgeSinceActivationEnd = 1_620L;
+        fundsMigrationAgeSinceActivationEnd = 100L;
 
         List<ECKey> feePerKbAuthorizedKeys = Arrays.stream(new String[]{
                 "04701d1d27f8c2ae97912d96fb1f82f10c2395fd320e7a869049268c6b53d2060dfb2e22e3248955332d88cd2ae29a398f8f3858e48dd6d8ffbc37dfd6d1aa4934",
@@ -132,12 +132,12 @@ public class BridgeTestNetConstants extends BridgeConstants {
         btcHeightWhenBlockIndexActivates = 2_039_594;
         maxDepthToSearchBlocksBelowIndexActivation = 4_320; // 30 days in BTC blocks (considering 1 block every 10 minutes)
 
-        erpFedActivationDelay = 52_560; // 1 year in BTC blocks (considering 1 block every 10 minutes)
+        erpFedActivationDelay = 50;
 
         erpFedPubKeysList = Arrays.stream(new String[] {
-            "0216c23b2ea8e4f11c3f9e22711addb1d16a93964796913830856b568cc3ea21d3",
-            "034db69f2112f4fb1bb6141bf6e2bd6631f0484d0bd95b16767902c9fe219d4a6f",
-            "0275562901dd8faae20de0a4166362a4f82188db77dbed4ca887422ea1ec185f14"
+            "028f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb26", // Seed 'erp1'
+            "02deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d6", // Seed 'erp2'
+            "03c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf821284998"  // Seed 'erp3'
         }).map(hex -> BtcECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         // Multisig address created in bitcoind with the following private keys:
