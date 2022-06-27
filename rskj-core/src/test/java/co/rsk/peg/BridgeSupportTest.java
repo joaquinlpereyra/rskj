@@ -5614,7 +5614,7 @@ public class BridgeSupportTest {
 
         ActivationConfig.ForBlock activations = mock(ActivationConfig.ForBlock.class);
         List<LogInfo> logs = new ArrayList<>();
-        BridgeEventLogger eventLogger = new BridgeEventLoggerImpl(bridgeConstants, activations, logs);
+        BridgeEventLogger eventLogger = new BrigeEventLoggerLegacyImpl(bridgeConstants, activations, logs);
         BridgeSupport bridgeSupport = getBridgeSupport(
                 bridgeConstants,
                 new BridgeStorageProvider(
@@ -8208,7 +8208,7 @@ public class BridgeSupportTest {
         track = repository.startTracking();
         ActivationConfig.ForBlock activations = mock(ActivationConfig.ForBlock.class);
         List<LogInfo> logs = new ArrayList<>();
-        BridgeEventLogger eventLogger = new BridgeEventLoggerImpl(bridgeConstants, activations, logs);
+        BridgeEventLogger eventLogger = new BrigeEventLoggerLegacyImpl(bridgeConstants, activations, logs);
         BridgeSupport bridgeSupport = getBridgeSupport(
                 bridgeConstants,
                 new BridgeStorageProvider(
