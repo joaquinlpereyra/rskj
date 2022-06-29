@@ -25,6 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  * @author ajlopez
@@ -34,6 +37,8 @@ public class BridgeBtcWallet extends Wallet {
     private final List<Federation> federations;
     private final Context btcContext;
 
+    private static final Logger logger = LoggerFactory.getLogger(BridgeBtcWallet.class);
+
     public BridgeBtcWallet(Context btcContext, List<Federation> federations) {
         super(btcContext);
         this.federations = federations;
@@ -42,6 +47,15 @@ public class BridgeBtcWallet extends Wallet {
 
     protected Optional<Federation> getDestinationFederation(byte[] payToScriptHash) {
         Context.propagate(this.btcContext);
+logger.debug("[getDestinationFederation] p2sh {}", Hex.toHexString(payToScriptHash));
+logger.debug("[getDestinationFederation] federations size {}", federations.size());
+federations.forEach(f -> logger.debug(
+    "[getDestinationFederation] fed address {}, redeem script {}, p2sh script {}, p2sh script pubkeyhash {}",
+    f.getAddress(),
+    Hex.toHexString(f.getRedeemScript().getProgram()),
+    Hex.toHexString(f.getP2SHScript().getProgram()),
+    Hex.toHexString(f.getP2SHScript().getPubKeyHash())
+));
         return federations.stream().filter(federation ->
             Arrays.equals(federation.getP2SHScript().getPubKeyHash(), payToScriptHash)).findFirst();
     }

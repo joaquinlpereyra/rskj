@@ -755,7 +755,7 @@ public class BridgeUtils {
         for (int j = 1; j < chunks.size() - 1; j++) {
             ScriptChunk chunk = chunks.get(j);
 
-            if (chunk.data.length == 0) {
+            if (chunk.data == null || chunk.data.length == 0) {
                 continue;
             }
 
