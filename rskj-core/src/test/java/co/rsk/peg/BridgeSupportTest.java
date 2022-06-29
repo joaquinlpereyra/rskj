@@ -26,6 +26,7 @@ import co.rsk.peg.whitelist.LockWhitelist;
 import co.rsk.peg.whitelist.OneOffWhiteListEntry;
 import co.rsk.test.builders.BridgeSupportBuilder;
 import com.google.common.collect.Lists;
+import java.time.ZonedDateTime;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
 import org.bouncycastle.crypto.params.ECDomainParameters;
@@ -77,8 +78,8 @@ public class BridgeSupportTest extends BridgeSupportTestBase {
     private static final String TO_ADDRESS = "0000000000000000000000000000000000000006";
     private static final BigInteger DUST_AMOUNT = new BigInteger("1");
     private static final BigInteger NONCE = new BigInteger("0");
-    private static final BigInteger GAS_PRICE = new BigInteger("100");
     private static final BigInteger GAS_LIMIT = new BigInteger("1000");
+    private static final BigInteger GAS_PRICE = new BigInteger("100");
     private static final String DATA = "80af2871";
     private static final co.rsk.core.Coin LIMIT_MONETARY_BASE = new co.rsk.core.Coin(new BigInteger("21000000000000000000000000"));
     private static final RskAddress contractAddress = PrecompiledContracts.BRIDGE_ADDR;
@@ -7405,5 +7406,189 @@ public class BridgeSupportTest extends BridgeSupportTestBase {
         when(peginInstructionsProvider.buildPeginInstructions(any())).thenReturn(Optional.of(peginInstructions));
 
         return peginInstructionsProvider;
+    }
+
+    @Test
+    public void spendFromErpFed() {
+        // Created with GenNodeKeyId using seed 'fed1'
+        byte[] publicKeyBytes = Hex.decode("040dfaa261fb7ea99f29b2f25cec9c49b6fe47daca5138b4f5443ba261547817f697e19ae593d3eb4dd2b3a57e0af1dc7218d3fa92935bf8fc80aeccdfff7d490a");
+        BtcECKey btcKey = BtcECKey.fromPublicOnly(publicKeyBytes);
+        ECKey rskKey = ECKey.fromPublicOnly(publicKeyBytes);
+        FederationMember fed1 = new FederationMember(btcKey, rskKey, rskKey);
+        BtcECKey fed1PrivKey = BtcECKey.fromPrivate(Hex.decode("38bb207d0a2bbb5a27801776049d3a7f37471333e496545700f097b285c20bae"));
+
+        // Created with GenNodeKeyId using seed 'fed2'
+        publicKeyBytes = Hex.decode("049798305ba4f07bb65ee01cf3be29dc25bdfa4e3e39b04af95a02fb0a68a47a293de662c9a666474db78c55edd4b25b6ab74f3e9fe8f06051882e335a040562f3");
+        btcKey = BtcECKey.fromPublicOnly(publicKeyBytes);
+        rskKey = ECKey.fromPublicOnly(publicKeyBytes);
+        FederationMember fed2 = new FederationMember(btcKey, rskKey, rskKey);
+        BtcECKey fed2PrivKey = BtcECKey.fromPrivate(Hex.decode("7aea30251fab9c66131aaa1d95e6a37d21d603eee07e35f6a457081d18b2b950"));
+
+        btcKey = BtcECKey.fromPublicOnly(Hex.decode("030c191a4fd6207e4c61b8a6d91795ae18591986b86d9fbc5e3491fde51acefd15"));
+        rskKey = ECKey.fromPublicOnly(Hex.decode("03be2c679f737910823678cbb70dcec0e31dfa05e4b8cb1bff7195fce96a7e1523"));
+        ECKey mstKey = ECKey.fromPublicOnly(Hex.decode("039c477739f727e3c278d60c37e4452a92951cc9927fe3b82c9e56a465204d9728"));
+        FederationMember fed3 = new FederationMember(btcKey, rskKey, mstKey);
+        BtcECKey fed3PrivKey = BtcECKey.fromPrivate(Hex.decode("a3def37acb722a4f8af3b4a941b38ee8924991478d5cb963135c050d3c443d73"));
+
+        // Created with GenNodeKeyId using seed 'erp1'
+        publicKeyBytes = Hex.decode("048f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb2643a4a8a618125530e275fe310c72dbdd55fa662cdcf8e134012f8a8d4b7e8400");
+        BtcECKey erp1Key = BtcECKey.fromPublicOnly(publicKeyBytes);
+        BtcECKey erp1PrivKey = BtcECKey.fromPrivate(Hex.decode("1f28656deb5f108f8cdf14af34ac4ff7a5643a7ac3f77b8de826b9ad9775f0ca"));
+
+        // Created with GenNodeKeyId using seed 'erp2'
+        publicKeyBytes = Hex.decode("04deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d60f3ce246954b78243b41337cf8f93b38563c3bcd6a5329f1d68c057d0e5146e8");
+        BtcECKey erp2Key = BtcECKey.fromPublicOnly(publicKeyBytes);
+        BtcECKey erp2PrivKey = BtcECKey.fromPrivate(Hex.decode("4e58ebe9cd04ffea5ab81dd2aded3ab8a63e44f3b47aef334e369d895c351646"));
+
+        // Created with GenNodeKeyId using seed 'erp3'
+        publicKeyBytes = Hex.decode("04c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf82128499808fc9148dfbc0e0ab510b4f4a78bf7a58f8b6574e03dae002533c5059973b61f");
+        BtcECKey erp3Key = BtcECKey.fromPublicOnly(publicKeyBytes);
+        BtcECKey erp3PrivKey = BtcECKey.fromPrivate(Hex.decode("57e8d2cd51c3b076ca96a1043c8c6d32c6c18447e411a6279cda29d70650977b"));
+
+        ActivationConfig.ForBlock activ = mock(ActivationConfig.ForBlock.class);
+        when(activ.isActive(any())).thenReturn(true);
+        ErpFederation erpFed = new ErpFederation(
+            Arrays.asList(fed1, fed2, fed3),
+            ZonedDateTime.parse("2017-06-10T02:30:00Z").toInstant(),
+            0L,
+            NetworkParameters.fromID(NetworkParameters.ID_TESTNET),
+            Arrays.asList(erp1Key, erp2Key, erp3Key),
+            50, // 50 (decimal) in hex,
+            activ
+        );
+
+        NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_TESTNET);
+
+        //TODO Replace with alphanet tx
+        String RAW_FUND_TX = "01000000029a00e7c5f6219db1a75c979b9a6bc88b30433ce4f3019ce84c5cb042bfac399b01000000fd6e010048304502210092a25fb0c9c6b7fd847cbafbc69039fc17c710485433013eaf4af36302b5389a0220665bde624b9514ddde133a780f05adebb81b57e1d955a1f157b8b4cf6647db6a01473044022019d182b5106ab74bc7d21300433e89db2c1ae1248cec3445db15d490977fba4702206cc73b2b4a20765a83d62c2f7a1406488964df8f3382327e678466855f63a2f201004cd9645221020dfaa261fb7ea99f29b2f25cec9c49b6fe47daca5138b4f5443ba261547817f6210303d2e83183329a7fd3020b93d5d58e9ec74ecc6f49cf84b1886045b6436729ad21030c191a4fd6207e4c61b8a6d91795ae18591986b86d9fbc5e3491fde51acefd155367020032b2755221028f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb262102deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d62103c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf8212849985368aeffffffffba49684fc8902b897965a7311412538b268de1ec2d2e53b8ca74924fdcba17b203000000fd6d010047304402203dbf6bfdf210a1492c401394d9b9fd3d126530c0c1704ad7d39e18b5e1954af70220675fea7eb209d66a9f20a68b1aad7691e7904427febfc92feebb37fe9fff030b0147304402207781c119e16466dda3119f3f82716be37fe64dc1f7709de94a49e20e5aa4ed3e02203b96590cd4f3ff86a662a4f93de53631c6d5676b3ed2efa1c59f47ce4a4c821501004cd9645221020dfaa261fb7ea99f29b2f25cec9c49b6fe47daca5138b4f5443ba261547817f6210303d2e83183329a7fd3020b93d5d58e9ec74ecc6f49cf84b1886045b6436729ad21030c191a4fd6207e4c61b8a6d91795ae18591986b86d9fbc5e3491fde51acefd155367020032b2755221028f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb262102deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d62103c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf8212849985368aeffffffff0178f23d020000000017a9144a89b83f65e84619d2a508cc6e1935d569b7162d8700000000";
+        BtcTransaction pegInTx = new BtcTransaction(networkParameters, Hex.decode(RAW_FUND_TX));
+
+        Address randomAddress = Address.fromBase58(networkParameters, "mzST5x6kSpsM5TUFHvUtTxJo8vnKetSjcK"); //TODO Replace with our own address to recover funds
+        System.out.println("Destination address: " + randomAddress.toBase58());
+        BtcTransaction pegOutTx = new BtcTransaction(networkParameters);
+        pegOutTx.addInput(pegInTx.getOutput(0)); //TODO Check output index when executing in alphanet
+        pegOutTx.addOutput(Coin.valueOf(37_514_200L), randomAddress); //TODO Check amount when executing in alphanet
+        pegOutTx.setVersion(2);
+        pegOutTx.getInput(0).setSequenceNumber(50L);
+
+        // Create signatures
+        Sha256Hash sigHash = pegOutTx.hashForSignature(0, erpFed.getRedeemScript(), BtcTransaction.SigHash.ALL, false);
+
+        BtcECKey.ECDSASignature signature1 = erp1PrivKey.sign(sigHash);
+        TransactionSignature txSignature1 = new TransactionSignature(signature1, BtcTransaction.SigHash.ALL, false);
+        byte[] txSignature1Encoded = txSignature1.encodeToBitcoin();
+
+        BtcECKey.ECDSASignature signature2 = erp2PrivKey.sign(sigHash);
+        TransactionSignature txSignature2 = new TransactionSignature(signature2, BtcTransaction.SigHash.ALL, false);
+        byte[] txSignature2Encoded = txSignature2.encodeToBitcoin();
+
+        ScriptBuilder scriptBuilder = new ScriptBuilder();
+        Script inputScript = scriptBuilder
+            .number(0)
+            .data(txSignature1Encoded)
+            .data(txSignature2Encoded)
+            .number(1)
+            .data(erpFed.getRedeemScript().getProgram())
+            .build();
+
+        pegOutTx.getInput(0).setScriptSig(inputScript);
+        inputScript.correctlySpends(pegOutTx,0, pegInTx.getOutput(0).getScriptPubKey());
+        byte[] result = pegOutTx.bitcoinSerialize();
+
+        System.out.println(Hex.toHexString(result));
+    }
+
+
+
+    @Test
+    public void spendFromErpFed2() {
+
+        // Created with GenNodeKeyId using seed 'fed1'
+        byte[] publicKeyBytes = Hex.decode("043267e382e076cbaa199d49ea7362535f95b135de181caf66b391f541bf39ab0e75b8577faac2183782cb0d76820cf9f356831d216e99d886f8a6bc47fe696939");
+        BtcECKey btcKey = BtcECKey.fromPublicOnly(publicKeyBytes);
+        ECKey rskKey = ECKey.fromPublicOnly(publicKeyBytes);
+        FederationMember fed1 = new FederationMember(btcKey, rskKey, rskKey);
+        BtcECKey fed1PrivKey = BtcECKey.fromPrivate(Hex.decode("529822842595a3a6b3b3e51e9cffa0db66452599f7beec542382a02b1e42be4b"));
+
+        // Created with GenNodeKeyId using seed 'fed2'
+        publicKeyBytes = Hex.decode("04bd5b51b1c5d799da190285c8078a2712b8e5dc6f73c799751e6256bb89a4bd04c6444b00289fc76ee853fcfa52b3083d66c42e84f8640f53a4cdf575e4d4a399");
+        btcKey = BtcECKey.fromPublicOnly(publicKeyBytes);
+        rskKey = ECKey.fromPublicOnly(publicKeyBytes);
+        FederationMember fed2 = new FederationMember(btcKey, rskKey, rskKey);
+        BtcECKey fed2PrivKey = BtcECKey.fromPrivate(Hex.decode("fa013890aa14dd269a0ca16003cabde1688021358b662d17b1e8c555f5cccc6e"));
+
+        // Created with GenNodeKeyId using seed 'fed3'
+        publicKeyBytes = Hex.decode("0443e106d90183e2eef7d5cb7538a634439bf1301d731787c6736922ff19e750ed39e74a76731fed620aeedbcd77e4de403fc4148efd3b5dbfc6cef550aa63c377");
+        btcKey = BtcECKey.fromPublicOnly(publicKeyBytes);
+        rskKey = ECKey.fromPublicOnly(publicKeyBytes);
+        FederationMember fed3 = new FederationMember(btcKey, rskKey, rskKey);
+        BtcECKey fed3PrivKey = BtcECKey.fromPrivate(Hex.decode("b2889610e66cd3f7de37c81c20c786b576349b80b3f844f8409e3a29d95c0c7c"));
+
+        // Created with GenNodeKeyId using seed 'erp1'
+        publicKeyBytes = Hex.decode("048f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb2643a4a8a618125530e275fe310c72dbdd55fa662cdcf8e134012f8a8d4b7e8400");
+        BtcECKey erp1Key = BtcECKey.fromPublicOnly(publicKeyBytes);
+        BtcECKey erp1PrivKey = BtcECKey.fromPrivate(Hex.decode("1f28656deb5f108f8cdf14af34ac4ff7a5643a7ac3f77b8de826b9ad9775f0ca"));
+
+        // Created with GenNodeKeyId using seed 'erp2'
+        publicKeyBytes = Hex.decode("04deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d60f3ce246954b78243b41337cf8f93b38563c3bcd6a5329f1d68c057d0e5146e8");
+        BtcECKey erp2Key = BtcECKey.fromPublicOnly(publicKeyBytes);
+        BtcECKey erp2PrivKey = BtcECKey.fromPrivate(Hex.decode("4e58ebe9cd04ffea5ab81dd2aded3ab8a63e44f3b47aef334e369d895c351646"));
+
+        // Created with GenNodeKeyId using seed 'erp3'
+        publicKeyBytes = Hex.decode("04c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf82128499808fc9148dfbc0e0ab510b4f4a78bf7a58f8b6574e03dae002533c5059973b61f");
+        BtcECKey erp3Key = BtcECKey.fromPublicOnly(publicKeyBytes);
+        BtcECKey erp3PrivKey = BtcECKey.fromPrivate(Hex.decode("57e8d2cd51c3b076ca96a1043c8c6d32c6c18447e411a6279cda29d70650977b"));
+
+ActivationConfig.ForBlock activ = mock(ActivationConfig.ForBlock.class);
+when(activ.isActive(any())).thenReturn(true);
+        ErpFederation erpFed = new ErpFederation(
+            Arrays.asList(fed1, fed2, fed3),
+            ZonedDateTime.parse("2017-06-10T02:30:00Z").toInstant(),
+            0L,
+            NetworkParameters.fromID(NetworkParameters.ID_REGTEST),
+            Arrays.asList(erp1Key, erp2Key, erp3Key),
+            32, // 50 (decimal) in hex,
+            activ
+        );
+
+        NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_REGTEST);
+
+        //TODO Replace with alphanet tx
+        String RAW_FUND_TX = "020000000113e9b3073ac58b62d3a82cbd2a8957be663b9ac272c2dc6fc95defcc9a5b68e700000000484730440220159ba03bb3d668e2fe329f3f2db7795a9fd273e1f04f2aa5aaf74c2164def596022062ff329e847dd419ebc601bd1103464d5cebfc289c7cdbd136481c4df90df2b301feffffff0200a3e1110000000017a914510eafeac1ea98244c8d69adaa16df751f16bf19873c402418010000001976a914fe12bbf4b236908270ff0ede9108683b610f64e888acc8000000";
+        BtcTransaction pegInTx = new BtcTransaction(networkParameters, Hex.decode(RAW_FUND_TX));
+
+        Address randomAddress = PegTestUtils.createRandomP2PKHBtcAddress(networkParameters); //TODO Replace with our own address to recover funds
+        System.out.println("Destination address: " + randomAddress.toBase58());
+        BtcTransaction pegOutTx = new BtcTransaction(networkParameters);
+        pegOutTx.addInput(pegInTx.getOutput(0)); //TODO Check output index when executing in alphanet
+        pegOutTx.addOutput(Coin.valueOf(299_000_000), randomAddress); //TODO Check amount when executing in alphanet
+        pegOutTx.setVersion(2);
+        pegOutTx.getInput(0).setSequenceNumber(50L);
+
+        // Create signatures
+        Sha256Hash sigHash = pegOutTx.hashForSignature(0, erpFed.getRedeemScript(), BtcTransaction.SigHash.ALL, false);
+
+        BtcECKey.ECDSASignature signature1 = erp1PrivKey.sign(sigHash);
+        TransactionSignature txSignature1 = new TransactionSignature(signature1, BtcTransaction.SigHash.ALL, false);
+        byte[] txSignature1Encoded = txSignature1.encodeToBitcoin();
+
+        BtcECKey.ECDSASignature signature2 = erp2PrivKey.sign(sigHash);
+        TransactionSignature txSignature2 = new TransactionSignature(signature2, BtcTransaction.SigHash.ALL, false);
+        byte[] txSignature2Encoded = txSignature2.encodeToBitcoin();
+
+        ScriptBuilder scriptBuilder = new ScriptBuilder();
+        Script inputScript = scriptBuilder
+            .number(0)
+            .data(txSignature1Encoded)
+            .data(txSignature2Encoded)
+            .number(1)
+            .data(erpFed.getRedeemScript().getProgram())
+            .build();
+
+        pegOutTx.getInput(0).setScriptSig(inputScript);
+        inputScript.correctlySpends(pegOutTx,0, pegInTx.getOutput(0).getScriptPubKey());
+        byte[] result = pegOutTx.bitcoinSerialize();
+
+        System.out.println(Hex.toHexString(result));
     }
 }
