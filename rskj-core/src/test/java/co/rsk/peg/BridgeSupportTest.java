@@ -7424,6 +7424,7 @@ public class BridgeSupportTest extends BridgeSupportTestBase {
         FederationMember fed2 = new FederationMember(btcKey, rskKey, rskKey);
         BtcECKey fed2PrivKey = BtcECKey.fromPrivate(Hex.decode("7aea30251fab9c66131aaa1d95e6a37d21d603eee07e35f6a457081d18b2b950"));
 
+        // Change this to use uncompressed public keys, this is causing some validation errors when executing the script
         btcKey = BtcECKey.fromPublicOnly(Hex.decode("030c191a4fd6207e4c61b8a6d91795ae18591986b86d9fbc5e3491fde51acefd15"));
         rskKey = ECKey.fromPublicOnly(Hex.decode("03be2c679f737910823678cbb70dcec0e31dfa05e4b8cb1bff7195fce96a7e1523"));
         ECKey mstKey = ECKey.fromPublicOnly(Hex.decode("039c477739f727e3c278d60c37e4452a92951cc9927fe3b82c9e56a465204d9728"));
@@ -7445,29 +7446,32 @@ public class BridgeSupportTest extends BridgeSupportTestBase {
         BtcECKey erp3Key = BtcECKey.fromPublicOnly(publicKeyBytes);
         BtcECKey erp3PrivKey = BtcECKey.fromPrivate(Hex.decode("57e8d2cd51c3b076ca96a1043c8c6d32c6c18447e411a6279cda29d70650977b"));
 
+        NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_TESTNET);
+
         ActivationConfig.ForBlock activ = mock(ActivationConfig.ForBlock.class);
         when(activ.isActive(any())).thenReturn(true);
         ErpFederation erpFed = new ErpFederation(
             Arrays.asList(fed1, fed2, fed3),
             ZonedDateTime.parse("2017-06-10T02:30:00Z").toInstant(),
             0L,
-            NetworkParameters.fromID(NetworkParameters.ID_TESTNET),
+            networkParameters,
             Arrays.asList(erp1Key, erp2Key, erp3Key),
-            50, // 50 (decimal) in hex,
+            50,
             activ
         );
 
-        NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_TESTNET);
-
         //TODO Replace with alphanet tx
-        String RAW_FUND_TX = "01000000029a00e7c5f6219db1a75c979b9a6bc88b30433ce4f3019ce84c5cb042bfac399b01000000fd6e010048304502210092a25fb0c9c6b7fd847cbafbc69039fc17c710485433013eaf4af36302b5389a0220665bde624b9514ddde133a780f05adebb81b57e1d955a1f157b8b4cf6647db6a01473044022019d182b5106ab74bc7d21300433e89db2c1ae1248cec3445db15d490977fba4702206cc73b2b4a20765a83d62c2f7a1406488964df8f3382327e678466855f63a2f201004cd9645221020dfaa261fb7ea99f29b2f25cec9c49b6fe47daca5138b4f5443ba261547817f6210303d2e83183329a7fd3020b93d5d58e9ec74ecc6f49cf84b1886045b6436729ad21030c191a4fd6207e4c61b8a6d91795ae18591986b86d9fbc5e3491fde51acefd155367020032b2755221028f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb262102deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d62103c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf8212849985368aeffffffffba49684fc8902b897965a7311412538b268de1ec2d2e53b8ca74924fdcba17b203000000fd6d010047304402203dbf6bfdf210a1492c401394d9b9fd3d126530c0c1704ad7d39e18b5e1954af70220675fea7eb209d66a9f20a68b1aad7691e7904427febfc92feebb37fe9fff030b0147304402207781c119e16466dda3119f3f82716be37fe64dc1f7709de94a49e20e5aa4ed3e02203b96590cd4f3ff86a662a4f93de53631c6d5676b3ed2efa1c59f47ce4a4c821501004cd9645221020dfaa261fb7ea99f29b2f25cec9c49b6fe47daca5138b4f5443ba261547817f6210303d2e83183329a7fd3020b93d5d58e9ec74ecc6f49cf84b1886045b6436729ad21030c191a4fd6207e4c61b8a6d91795ae18591986b86d9fbc5e3491fde51acefd155367020032b2755221028f5a88b08d75765b36951254e68060759de5be7e559972c37c67fc8cedafeb262102deba35a96add157b6de58f48bb6e23bcb0a17037bed1beb8ba98de6b0a0d71d62103c34fcd05cef2733ea7337c37f50ae26245646aba124948c6ff8dcdf8212849985368aeffffffff0178f23d020000000017a9144a89b83f65e84619d2a508cc6e1935d569b7162d8700000000";
+        //String RAW_FUND_TX = "0200000001a12beb529aeaf7c3ff6118c8c1c5218ed1a214344e0d9f247ad264bdc68845dc000000006b483045022100d8d77551a5dd8a81e321ff071e9d71af7d6c033a4bfa35e84a07e9f1c4eb57c4022055000df0623607b76366fa2cc7c437c9f04f3e1f8124fb8c0fbebe91889dcf18012103cb2311928d3574b64b54b768ca9b20243eb676e7864879df60f4b57ccd2a9e68fdffffff0200e204000000000017a9146f787862b1d35808c8c1cc14c2c4d115db5b14a0872fb70a00000000001976a914447dd23bdd7cca81917072c07a7f1fd22e0d2b9b88ac2ad72200";
+        String RAW_FUND_TX = "0200000002e0948a231772c49be6c3f517780da621dda201a4edfbfce78128c0a76877250d000000006a47304402204a06e1a3cdc9c74a148f3d6b8bdfefcab822c6b688e3244dc42c547c8a3c2df402200d884d7015e06e42e936e25df544b63641bdd5b05a5956debfd85d9e8077febf0121023c6c710f8ae7dbdecd54ac24ee4a2d8da61cc82bd17a4e58dfb8dab2ab70ffb6fdffffff27c91e422a282edc87527e128fcf19204aeec80c7cc40d99a56656d901ea5310000000006b483045022100c36f05d4a3d69c872eb557047246dadb6f0efa8468d30e7a8fad3a5a3505ec5402201405a7e3291e4f18724962147e5dd55bd520cb9ba54fc4c2ed3b621d0ec5e8200121025ba12b53fb838edfdb5d822733bb365f4ee5c51c2a75d2a37d419559c019697cfdffffff0217300000000000001976a914c66da86f8bdf94d8c1308f56406dd0238c2502f188ac301b0f000000000017a9144a89b83f65e84619d2a508cc6e1935d569b7162d87b4d72200";
         BtcTransaction pegInTx = new BtcTransaction(networkParameters, Hex.decode(RAW_FUND_TX));
 
         Address randomAddress = Address.fromBase58(networkParameters, "mzST5x6kSpsM5TUFHvUtTxJo8vnKetSjcK"); //TODO Replace with our own address to recover funds
         System.out.println("Destination address: " + randomAddress.toBase58());
         BtcTransaction pegOutTx = new BtcTransaction(networkParameters);
-        pegOutTx.addInput(pegInTx.getOutput(0)); //TODO Check output index when executing in alphanet
-        pegOutTx.addOutput(Coin.valueOf(37_514_200L), randomAddress); //TODO Check amount when executing in alphanet
+//        pegOutTx.addInput(pegInTx.getOutput(0)); //TODO Check output index when executing in alphanet
+        pegOutTx.addInput(pegInTx.getOutput(1));
+//        pegOutTx.addOutput(Coin.valueOf(310_000L), randomAddress); //TODO Check amount when executing in alphanet
+        pegOutTx.addOutput(Coin.valueOf(980_000L), randomAddress);
         pegOutTx.setVersion(2);
         pegOutTx.getInput(0).setSequenceNumber(50L);
 
@@ -7502,7 +7506,6 @@ public class BridgeSupportTest extends BridgeSupportTestBase {
 
     @Test
     public void spendFromErpFed2() {
-
         // Created with GenNodeKeyId using seed 'fed1'
         byte[] publicKeyBytes = Hex.decode("043267e382e076cbaa199d49ea7362535f95b135de181caf66b391f541bf39ab0e75b8577faac2183782cb0d76820cf9f356831d216e99d886f8a6bc47fe696939");
         BtcECKey btcKey = BtcECKey.fromPublicOnly(publicKeyBytes);
@@ -7539,31 +7542,32 @@ public class BridgeSupportTest extends BridgeSupportTestBase {
         BtcECKey erp3Key = BtcECKey.fromPublicOnly(publicKeyBytes);
         BtcECKey erp3PrivKey = BtcECKey.fromPrivate(Hex.decode("57e8d2cd51c3b076ca96a1043c8c6d32c6c18447e411a6279cda29d70650977b"));
 
-ActivationConfig.ForBlock activ = mock(ActivationConfig.ForBlock.class);
-when(activ.isActive(any())).thenReturn(true);
+        NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_TESTNET);
+
+        ActivationConfig.ForBlock activ = mock(ActivationConfig.ForBlock.class);
+        when(activ.isActive(any())).thenReturn(true);
         ErpFederation erpFed = new ErpFederation(
             Arrays.asList(fed1, fed2, fed3),
             ZonedDateTime.parse("2017-06-10T02:30:00Z").toInstant(),
             0L,
-            NetworkParameters.fromID(NetworkParameters.ID_REGTEST),
+            networkParameters,
             Arrays.asList(erp1Key, erp2Key, erp3Key),
-            32, // 50 (decimal) in hex,
+            513, //0x201
             activ
         );
-
-        NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_REGTEST);
+        // Address: 2NBCNR6foMBLgMVR22NGschNgnJL1eeNnqD
 
         //TODO Replace with alphanet tx
-        String RAW_FUND_TX = "020000000113e9b3073ac58b62d3a82cbd2a8957be663b9ac272c2dc6fc95defcc9a5b68e700000000484730440220159ba03bb3d668e2fe329f3f2db7795a9fd273e1f04f2aa5aaf74c2164def596022062ff329e847dd419ebc601bd1103464d5cebfc289c7cdbd136481c4df90df2b301feffffff0200a3e1110000000017a914510eafeac1ea98244c8d69adaa16df751f16bf19873c402418010000001976a914fe12bbf4b236908270ff0ede9108683b610f64e888acc8000000";
+        String RAW_FUND_TX = "02000000015f20053307bb881e045706a352a131312359d327b31c9abbb020bbd191a1618c010000006a47304402205c39ef53553fe6548abf4acf6737e3b24a4c8a4cd384fd7916c5bde6f099df67022023b16c4df6a53dc21ad5a2e22b69d25c1525c11057545cbd31b6903588def9500121035c13ef57e37dbde36cfcb4dd86bb48827e3c239a969c4b8b720a1511122ab6f4fdffffff02301b0f000000000017a914c4e80d2a5a8258319600a3fbb912f44fe008c45887aac84400000000001976a914f158409f95321d3a4962ffb833f2dcea02fdf84688acbad72200";
         BtcTransaction pegInTx = new BtcTransaction(networkParameters, Hex.decode(RAW_FUND_TX));
 
         Address randomAddress = PegTestUtils.createRandomP2PKHBtcAddress(networkParameters); //TODO Replace with our own address to recover funds
         System.out.println("Destination address: " + randomAddress.toBase58());
         BtcTransaction pegOutTx = new BtcTransaction(networkParameters);
-        pegOutTx.addInput(pegInTx.getOutput(0)); //TODO Check output index when executing in alphanet
-        pegOutTx.addOutput(Coin.valueOf(299_000_000), randomAddress); //TODO Check amount when executing in alphanet
+        pegOutTx.addInput(pegInTx.getOutput(0)); //TODO Check output index
+        pegOutTx.addOutput(Coin.valueOf(900_000), randomAddress); //TODO Check amount
         pegOutTx.setVersion(2);
-        pegOutTx.getInput(0).setSequenceNumber(50L);
+        pegOutTx.getInput(0).setSequenceNumber(258L);
 
         // Create signatures
         Sha256Hash sigHash = pegOutTx.hashForSignature(0, erpFed.getRedeemScript(), BtcTransaction.SigHash.ALL, false);
